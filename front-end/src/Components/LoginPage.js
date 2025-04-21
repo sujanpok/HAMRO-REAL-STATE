@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-function SignUpPage() {
+function logPage() {
   return (
     <Wrapper className="bg-light">
       <div className="container">
@@ -9,28 +9,20 @@ function SignUpPage() {
           <div className="col-md-4">
             <div className="card shadow-lg rounded">
               <div className="card-body">
-                <h3 className="text-center mb-4">Sign Up</h3>
+                <h3 className="text-center mb-4">Login</h3>
 
-                {/* Sign Up Form */}
+                {/* login form */}
                 <form>
                   <div className="mb-3">
-                    <label htmlFor="name" className="form-label">Full Name</label>
-                    <input type="text" className="form-control" id="name" placeholder="Enter full name" />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="email" className="form-label">Email Address</label>
-                    <input type="email" className="form-control" id="email" placeholder="Enter email" />
+                    <label htmlFor="name" className="form-label">ID</label>
+                    <input type="text" className="form-control" id="name" placeholder="id/PhoneNumber" />
                   </div>
                   <div className="mb-3">
                     <label htmlFor="password" className="form-label">Password</label>
                     <input type="password" className="form-control" id="password" placeholder="Create password" />
                   </div>
-                  <div className="mb-3">
-                    <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
-                    <input type="password" className="form-control" id="confirmPassword" placeholder="Confirm password" />
-                  </div>
                   <div className="d-grid mb-3">
-                    <button type="submit" className="btn btn-primary">Sign Up</button>
+                    <button type="submit" className="btn btn-primary">login</button>
                   </div>
                 </form>
 
@@ -42,10 +34,10 @@ function SignUpPage() {
                 {/* Social Buttons */}
                 <div className="d-grid gap-2">
                   <button className="btn btn-google" type="button">
-                    <i className="bi bi-google"></i> Sign up with Google
+                    <i className="bi bi-google"></i> login with Google
                   </button>
                   <button className="btn btn-facebook" type="button">
-                    <i className="bi bi-facebook"></i> Sign up with Facebook
+                    <i className="bi bi-facebook"></i>login with Facebook
                   </button>
                 </div>
 
@@ -77,4 +69,4 @@ const Wrapper = styled.section`
   }
 `;
 
-export default SignUpPage;
+export default logPage;

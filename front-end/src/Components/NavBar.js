@@ -52,6 +52,9 @@ const Navbar = () => {
                        <li className={`nav-link ${activeLink === '/signup' ? 'active' : ''}`}>
                          <Link className="nav-link" to="/logout" onClick={() => handleLinkClick('/logout')}>Logout</Link>
                        </li>
+                       <li className={`nav-link ${activeLink === '/login' ? 'active' : ''}`}>
+                         <Link className="nav-link" to="/login" onClick={() => handleLinkClick('/login')}>Login</Link>
+                       </li>
                        <li>
                          <Link className="nav-link cart-trolley-link" to="/cart" ><FiShoppingCart className='cart-trolley'/>
                         {/* <span className='cart-total-item'>{total_cart_item}</span>*/}
