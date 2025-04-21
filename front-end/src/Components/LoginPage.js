@@ -6,7 +6,7 @@ function LoginPage() {
     <Wrapper>
     <div className="">
             <div className=''>
-              Login page
+              log
             </div>
         </div>
     </Wrapper>
