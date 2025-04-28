@@ -1,29 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-<<<<<<< HEAD
-import { useNavigate } from 'react-router-dom'; // Import for redirection
-
-function LoginPage() {
-  const [username, setId] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const navigate = useNavigate(); // For redirecting after successful login
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    try {
-      const response = await fetch('https://api.hamrorealstate.store/login', {  // Using absolute URL
-=======
 import { useNavigate } from 'react-router-dom';
 
 function AuthPage() {
-  // Toggle between Login and Signup
   const [isLogin, setIsLogin] = useState(true);
-  //  Login felids
   const [loginData, setLoginData] = useState({ username: '', password: '' });
-  //  Signup felids
   const [signupData, setSignupData] = useState({
     firstName: '',
     lastName: '',
@@ -34,10 +15,10 @@ function AuthPage() {
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
     setLoginData({ ...loginData, [name]: value });
-    console.log(handleLoginChange)
   };
 
   const handleSignupChange = (e) => {
@@ -45,93 +26,13 @@ function AuthPage() {
     setSignupData({ ...signupData, [name]: value });
   };
 
-  //BackEnd connection
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
       const response = await fetch('https://api.hamrorealstate.store/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Server Response:', data);
-        console.log('Login successful!');
-        // Redirecting to dashboard page after login
-        navigate('/dashboard');
-      } else {
-        const errorData = await response.json();
-        // Handle errors, showing error message from server if any
-        setError(errorData.message || 'Login failed. Please check your credentials.');
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      // Handling errors if the network request fails
-      setError('Something went wrong. Please try again later.');
-    }
-  };
-
-  return (
-    <Wrapper className="bg-light">
-      <div className="container">
-        <div className="row justify-content-center align-items-center min-vh-100">
-          <div className="col-md-4">
-            <div className="card shadow-lg rounded">
-              <div className="card-body">
-                <h3 className="text-center mb-4">Login</h3>
-                {error && <div className="alert alert-danger">{error}</div>}
-
-                <form onSubmit={handleSubmit}>
-                  <div className="mb-3">
-                    <label htmlFor="username" className="form-label">ID</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="username"
-                      placeholder="ID/Phone Number"
-                      value={username}
-                      onChange={(e) => setId(e.target.value)}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="password" className="form-label">Password</label>
-                    <input
-                      type="password"
-                      className="form-control"
-                      id="password"
-                      placeholder="Enter password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-                  <div className="d-grid mb-3">
-                    <button type="submit" className="btn btn-primary">Login</button>
-                  </div>
-                </form>
-
-                <div className="text-center mb-3">
-                  <span>or</span>
-                </div>
-
-                <div className="d-grid gap-2">
-                  <button className="btn btn-google" type="button">
-                    <i className="bi bi-google"></i> Login with Google
-                  </button>
-                  <button className="btn btn-facebook" type="button">
-                    <i className="bi bi-facebook"></i> Login with Facebook
-                  </button>
-                </div>
-
-              </div>
-            </div>
-          </div>
-=======
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginData),
       });
       if (response.ok) {
@@ -150,7 +51,6 @@ function AuthPage() {
 
   const handleSignupSubmit = (e) => {
     e.preventDefault();
-    // Navigate to confirmation page with signup data
     navigate('/confirm', { state: { formData: signupData } });
   };
 
@@ -160,7 +60,6 @@ function AuthPage() {
         <div className="toggle-buttons">
           <button className={isLogin ? 'active' : ''} onClick={() => setIsLogin(true)}>Login</button>
           <button className={!isLogin ? 'active' : ''} onClick={() => setIsLogin(false)}>Signup</button>
->>>>>>> boharaWork
         </div>
 
         {isLogin ? (
@@ -197,8 +96,6 @@ function AuthPage() {
                 onChange={handleSignupChange}
                 required
               />
-            </div>
-            <div className="name-fields">
               <input
                 type="text"
                 name="lastName"
@@ -244,7 +141,6 @@ function AuthPage() {
               <option value="Other">Other</option>
             </select>
             <button type="submit" className="submit-button">Confirm</button>
-            <button type="submit" className="submit-button">Login With Gmail</button>
           </form>
         )}
       </div>
@@ -266,11 +162,6 @@ const Wrapper = styled.section`
     width: 350px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   }
-<<<<<<< HEAD
-`;
-
-export default LoginPage;
-=======
 
   .toggle-buttons {
     display: flex;
@@ -342,4 +233,3 @@ export default LoginPage;
 `;
 
 export default AuthPage;
->>>>>>> boharaWork
