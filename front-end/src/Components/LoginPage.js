@@ -3,8 +3,11 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
 function AuthPage() {
+  // Toggle between Login and Signup
   const [isLogin, setIsLogin] = useState(true);
+  //  Login felids
   const [loginData, setLoginData] = useState({ username: '', password: '' });
+  //  Signup felids
   const [signupData, setSignupData] = useState({
     firstName: '',
     lastName: '',
@@ -15,10 +18,10 @@ function AuthPage() {
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
     setLoginData({ ...loginData, [name]: value });
+    console.log(handleLoginChange)
   };
 
   const handleSignupChange = (e) => {
@@ -26,13 +29,16 @@ function AuthPage() {
     setSignupData({ ...signupData, [name]: value });
   };
 
+  //BackEnd connection
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
       const response = await fetch('https://api.hamrorealstate.store/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(loginData),
       });
       if (response.ok) {
@@ -51,6 +57,7 @@ function AuthPage() {
 
   const handleSignupSubmit = (e) => {
     e.preventDefault();
+    // Navigate to confirmation page with signup data
     navigate('/confirm', { state: { formData: signupData } });
   };
 
@@ -96,6 +103,8 @@ function AuthPage() {
                 onChange={handleSignupChange}
                 required
               />
+            </div>
+            <div className="name-fields">
               <input
                 type="text"
                 name="lastName"
@@ -141,6 +150,7 @@ function AuthPage() {
               <option value="Other">Other</option>
             </select>
             <button type="submit" className="submit-button">Confirm</button>
+            <button type="submit" className="submit-button">Login With Gmail</button>
           </form>
         )}
       </div>
@@ -223,12 +233,16 @@ const Wrapper = styled.section`
   }
 
   .name-fields {
-    display: flex;
-    gap: 0.5rem;
+    display: flex; /* This makes the children align in a row */
+    gap: 0.5rem; /* Adds some space between the first and last name inputs */
+    margin-bottom: 0.8rem; /* Adds margin below the name fields container */
   }
 
   .name-fields input {
-    flex: 1;
+    flex: 1; /* Allows both input fields to take equal width within the container */
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
   }
 `;
 
