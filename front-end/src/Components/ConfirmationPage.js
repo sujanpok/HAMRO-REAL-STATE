@@ -63,8 +63,9 @@ function ConfirmationPage() {
     }
   };
 
+  // Go back to the AuthPage
   const handleGoBack = () => {
-    navigate('/'); // Go back to the AuthPage
+    navigate('/LoginPage'); 
   };
 
   const handleEdit = (field) => {
