@@ -17,7 +17,6 @@ function ConfirmationPage() {
     profileImage: false,
   });
   const [profileImagePreview, setProfileImagePreview] = useState(null);
-
   useEffect(() => {
     // If formData is not available from navigation state, redirect
     if (!formData) {
@@ -63,8 +62,9 @@ function ConfirmationPage() {
     }
   };
 
+  // Go back to the AuthPage
   const handleGoBack = () => {
-    navigate('/'); // Go back to the AuthPage
+
   };
 
   const handleEdit = (field) => {
