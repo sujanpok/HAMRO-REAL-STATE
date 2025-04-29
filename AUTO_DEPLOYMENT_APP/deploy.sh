@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LOG_FILE="../AUTO_DEPLOYMENT_APP/deployment.log"
-BACKEND_DIR="../BACKEND_APP"
+BACKEND_DIR="/home/pi/FOR_BACKEND_API/"
 BRANCH="BACKENDReleseBranch"
 GIT_REPO="https://github.com/sujanpok/HAMRO-REAL-STATE.git"
 
@@ -10,8 +10,8 @@ GIT_REPO="https://github.com/sujanpok/HAMRO-REAL-STATE.git"
 
   # Clone repo if not present
   if [ ! -d "$BACKEND_DIR" ]; then
-    echo "📁 BACKEND_APP not found. Cloning repository..."
-    git clone "$GIT_REPO" "$BACKEND_DIR" || { echo "❌ Failed to clone repository."; exit 1; }
+    echo "📁 BACKEND_APP not found. Cloning repository branch $BRANCH..."
+    git clone --branch "$BRANCH" --single-branch "$GIT_REPO" "$BACKEND_DIR" || { echo "❌ Failed to clone repository."; exit 1; }
   fi
 
   # Navigate to the backend directory
