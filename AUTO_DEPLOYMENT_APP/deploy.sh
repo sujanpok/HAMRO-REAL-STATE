@@ -3,23 +3,24 @@
 LOG_FILE="../AUTO_DEPLOYMENT_APP/deployment.log"
 BACKEND_DIR="../BACKEND_APP"
 BRANCH="BACKENDReleseBranch"
+GIT_REPO="https://github.com/sujanpok/HAMRO-REAL-STATE.git"
 
 {
-  echo "📥 $(date): Switching to $BRANCH and pulling latest code in $BACKEND_DIR..."
+  echo "📥 $(date): Starting deployment..."
+
+  # Clone repo if not present
+  if [ ! -d "$BACKEND_DIR" ]; then
+    echo "📁 BACKEND_APP not found. Cloning repository..."
+    git clone "$GIT_REPO" "$BACKEND_DIR" || { echo "❌ Failed to clone repository."; exit 1; }
+  fi
+
+  # Navigate to the backend directory
   cd "$BACKEND_DIR" || { echo "❌ Failed to cd into $BACKEND_DIR"; exit 1; }
-  
+
+  # Ensure correct Git remote and branch
+  echo "🔁 Setting Git remote to $GIT_REPO"
+  git remote set-url origin "$GIT_REPO"
   git fetch origin
-  git checkout "$BRANCH"
-  git pull origin "$BRANCH"
 
-  echo "📦 Installing dependencies..."
-  npm install
-
-  echo "🔁 Restarting hamrorealstate service..."
-  sudo systemctl restart hamrorealstate
-
-  echo "🔁 Restarting cloudflared service..."
-  sudo systemctl restart cloudflared
-
-  echo "✅ Deployment from $BRANCH completed at $(date)"
-} 2>&1 | tee -a "$LOG_FILE"
+  echo "🔄 Checking out branch $BRANCH"
+  git checkout "$BRANCH" || git checkout -b "$BRANCH" "origin/$BRANCH
