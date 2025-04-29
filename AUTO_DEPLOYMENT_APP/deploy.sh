@@ -23,4 +23,26 @@ GIT_REPO="https://github.com/sujanpok/HAMRO-REAL-STATE.git"
   git fetch origin
 
   echo "🔄 Checking out branch $BRANCH"
-  git checkout "$BRANCH" || git checkout -b "$BRANCH" "origin/$BRANCH
+  git checkout "$BRANCH" || git checkout -b "$BRANCH" "origin/$BRANCH"
+
+  echo "⬇️ Pulling latest changes..."
+  git pull origin "$BRANCH"
+
+  # Install Node.js dependencies
+  echo "📦 Running npm install..."
+  npm install || { echo "❌ npm install failed."; exit 1; }
+
+  # Optional: build if using TypeScript, React, etc.
+  # echo "🏗️ Building project..."
+  # npm run build || { echo "❌ npm run build failed."; exit 1; }
+
+  echo "🚀 Deployment completed!"
+
+  echo "⏳ Waiting 5 seconds before restarting service..."
+  sleep 5
+
+  echo "🔄 Restarting service: hamrorealstate"
+  sudo systemctl restart hamrorealstate || { echo "❌ Failed to restart service."; exit 1; }
+
+  echo "✅ Service restarted successfully!"
+} >> "$LOG_FILE" 2>&1
