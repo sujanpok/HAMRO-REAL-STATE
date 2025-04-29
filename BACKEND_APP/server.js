@@ -20,7 +20,7 @@ app.use(cors({
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('👋 Hello from your Raspberry Pi! Api service running.testtte');
+  res.send('👋 Hello from your Raspberry Pi! Api service running.');
 });
 
 // ✅ Routes
