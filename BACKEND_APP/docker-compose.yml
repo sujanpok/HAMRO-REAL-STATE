@@ -2,7 +2,7 @@ services:
   backend:
     build: .
     ports:
-      - "3000:3000"
+      - "5000:5000"
     restart: always
     env_file: .env
     depends_on:
