@@ -41,6 +41,8 @@ const ERROR_CODES = {
   JWT_ERROR: 'ERR007',
 };
 
+const allowedUserTypes = ['ADMIN', 'OWNER', 'TENANT', 'AGENT'];
+
 exports.registerUser = async (data) => {
   const {
     username, password, confirm_password,
@@ -58,6 +60,12 @@ exports.registerUser = async (data) => {
   if (password !== confirm_password) {
     logger.warn('Passwords do not match');
     return { status: 400, data: { error: 'Passwords do not match', code: ERROR_CODES.PASSWORD_MISMATCH } };
+  }
+
+  // Validate user_type
+  if (!allowedUserTypes.includes(user_type)) {
+    logger.warn(`Invalid user_type provided: ${user_type}`);
+    return { status: 400, data: { error: 'Invalid user_type', code: ERROR_CODES.MISSING_FIELDS } };
   }
 
   try {
