@@ -1,19 +1,22 @@
+require('dotenv').config();
 const pool = require('../db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 const logger = require('../logger');
 
+
 const { schema, tables } = config.db;
 
 // Centralized table and column names to simplify modification
-const USERS_TABLE = `${schema}.${tables.users}`;
+const LOGIN_TABLE = `${schema}.${tables.login}`;
 const USER_PROFILE_TABLE = `${schema}.${tables.userProfile}`;
 
-const USER_COLUMNS = {
+const LOGIN_COLUMNS = {
   USERNAME: 'USERNAME',
   PASSWORD: 'PASSWORD',
   USER_TYPE: 'USER_TYPE',
+  IS_ACTIVE: 'IS_ACTIVE',
   USER_ID: 'USER_ID',
 };
 
@@ -42,7 +45,7 @@ exports.registerUser = async (data) => {
   const {
     username, password, confirm_password,
     full_name, email, phone_number,
-    address, gender, profile_image
+    address, gender, profile_image,user_type
   } = data;
 
   // Validate required fields
@@ -60,10 +63,10 @@ exports.registerUser = async (data) => {
   try {
     // Check if user already exists by username or email
     const userCheckQuery = `
-      SELECT ${USER_COLUMNS.USERNAME}, ${PROFILE_COLUMNS.EMAIL}
-      FROM ${USERS_TABLE} u
-      LEFT JOIN ${USER_PROFILE_TABLE} p ON u.${USER_COLUMNS.USER_ID} = p.${PROFILE_COLUMNS.USER_ID}
-      WHERE u.${USER_COLUMNS.USERNAME} = $1 OR p.${PROFILE_COLUMNS.EMAIL} = $2
+      SELECT ${LOGIN_COLUMNS.USERNAME}, ${PROFILE_COLUMNS.EMAIL}
+      FROM ${LOGIN_TABLE} u
+      LEFT JOIN ${USER_PROFILE_TABLE} p ON u.${LOGIN_COLUMNS.USER_ID} = p.${PROFILE_COLUMNS.USER_ID}
+      WHERE u.${LOGIN_COLUMNS.USERNAME} = $1 OR p.${PROFILE_COLUMNS.EMAIL} = $2
     `;
     const existingUser = await pool.query(userCheckQuery, [username, email]);
 
@@ -75,15 +78,15 @@ exports.registerUser = async (data) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert new user
-    const insertUserQuery = `
-      INSERT INTO ${USERS_TABLE} (${USER_COLUMNS.USERNAME}, ${USER_COLUMNS.PASSWORD}, ${USER_COLUMNS.USER_TYPE})
-      VALUES ($1, $2, 'TENANT') RETURNING ${USER_COLUMNS.USER_ID}
+    // Insert new login User
+    const insertLoginUserQuery = `
+      INSERT INTO ${LOGIN_TABLE} (${LOGIN_COLUMNS.USERNAME}, ${LOGIN_COLUMNS.PASSWORD}, ${LOGIN_COLUMNS.USER_TYPE}, ${LOGIN_COLUMNS.IS_ACTIVE})
+      VALUES ($1, $2, $3, $4) RETURNING ${LOGIN_COLUMNS.USER_ID}
     `;
-    const userRes = await pool.query(insertUserQuery, [username, hashedPassword]);
+    const userRes = await pool.query(insertLoginUserQuery, [username, hashedPassword, user_type, true]);
     const userId = userRes.rows[0].user_id;
 
-    // Insert or update user profile
+    // Insert user profile
     const insertProfileQuery = `
       INSERT INTO ${USER_PROFILE_TABLE} 
       (${PROFILE_COLUMNS.USER_ID}, ${PROFILE_COLUMNS.FULL_NAME}, ${PROFILE_COLUMNS.PHONE_NUMBER}, 
@@ -104,13 +107,13 @@ exports.registerUser = async (data) => {
 };
 
 exports.loginUser = async (data) => {
-  const expiresIn = process.env.JWT_EXPIRATION || '1h';  // Default to '1h' if not set
+  const expiresIn = process.env.JWT_EXPIRATION;
   const { username, password } = data;
 
   try {
     const query = `
-      SELECT * FROM ${USERS_TABLE} WHERE ${USER_COLUMNS.USERNAME} = $1
-    `;
+    SELECT * FROM ${LOGIN_TABLE} WHERE IS_ACTIVE IS TRUE AND ${LOGIN_COLUMNS.USERNAME} = $1
+  `;
     const result = await pool.query(query, [username]);
     const user = result.rows[0];
 
@@ -137,12 +140,19 @@ exports.loginUser = async (data) => {
 
 // New function to get logged-in user's profile details
 exports.getUserProfile = async (userId) => {
-    const query = `
-      SELECT ${PROFILE_COLUMNS.FULL_NAME}, ${PROFILE_COLUMNS.PHONE_NUMBER}, ${PROFILE_COLUMNS.EMAIL},
-             ${PROFILE_COLUMNS.ADDRESS}, ${PROFILE_COLUMNS.GENDER}, ${PROFILE_COLUMNS.PROFILE_IMAGE}
-      FROM ${USER_PROFILE_TABLE}
-      WHERE ${PROFILE_COLUMNS.USER_ID} = $1
-    `;
+  const query = `
+    SELECT 
+      p.${PROFILE_COLUMNS.FULL_NAME}, 
+      p.${PROFILE_COLUMNS.PHONE_NUMBER}, 
+      p.${PROFILE_COLUMNS.EMAIL},
+      p.${PROFILE_COLUMNS.ADDRESS}, 
+      p.${PROFILE_COLUMNS.GENDER}, 
+      p.${PROFILE_COLUMNS.PROFILE_IMAGE},
+      l.${LOGIN_COLUMNS.USER_TYPE}
+    FROM ${USER_PROFILE_TABLE} p
+    JOIN ${LOGIN_TABLE} l ON p.${PROFILE_COLUMNS.USER_ID} = l.${LOGIN_COLUMNS.USER_ID}
+    WHERE p.${PROFILE_COLUMNS.USER_ID} = $1
+`;
     try {
       const result = await pool.query(query, [userId]);
       if (result.rows.length === 0) {
