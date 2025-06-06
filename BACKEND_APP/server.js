@@ -28,6 +28,7 @@ app.use('/', authRoutes);
 
 // ✅ Start Server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const HOST = process.env.HOST;  
+app.listen(PORT, HOST, () => {
   logger.info(`🚀 Server is running at http://localhost:${PORT}`);
 });
