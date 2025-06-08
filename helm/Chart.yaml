@@ -1,0 +1,6 @@
+apiVersion: v2
+name: backend-api
+description: A Helm chart for blue/green backend-api deployments with cluster name labels
+type: application
+version: 0.1.0
+appVersion: "1.0"

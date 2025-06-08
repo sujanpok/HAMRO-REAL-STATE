@@ -1,0 +1,36 @@
+{{- $image := .Values.image.repository }}
+{{- $tag := .Values.image.tag }}
+{{- $env := .Values.env }}
+{{- $clusterName := .Values.clusterName }}
+
+{{- range $version := list "green" "blue" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-api-{{ $version }}
+  labels:
+    cluster-name: {{ $clusterName | quote }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-api
+      version: {{ $version }}
+      cluster-name: {{ $clusterName | quote }}
+  template:
+    metadata:
+      labels:
+        app: backend-api
+        version: {{ $version }}
+        cluster-name: {{ $clusterName | quote }}
+    spec:
+      containers:
+        - name: backend-api
+          image: "{{ $image }}:{{ $tag }}"
+          ports:
+            - containerPort: 8000
+          env:
+            - name: NODE_ENV
+              value: {{ $env.NODE_ENV | quote }}
+---
+{{- end }}

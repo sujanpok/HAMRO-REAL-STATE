@@ -1,0 +1,16 @@
+image:
+  repository: sujan1234ray/backendapiapp
+  tag: arm64
+
+activeVersion: green  # Change to blue to switch deployments
+
+service:
+  type: LoadBalancer
+  port: 5000
+  targetPort: 8000
+  nodePort: 30000
+
+env:
+  NODE_ENV: production
+
+clusterName: my-cluster-raspberrypi

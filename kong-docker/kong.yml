@@ -1,0 +1,10 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+- name: backend-api
+  url: http://192.168.3.240:5000  # External IP of K3s backend service
+  routes:
+  - name: backend-api-route
+    paths:
+    - /
