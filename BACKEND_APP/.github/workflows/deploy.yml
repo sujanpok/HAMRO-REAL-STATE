@@ -1,0 +1,101 @@
+name: CI/CD Blue-Green Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: sujan1234ray/backendapiapp
+  KUBECONFIG: ${{ secrets.KUBECONFIG }}
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # optional
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE_TAG=arm64-${{ github.sha }}
+          docker build --platform linux/arm64 -t $REGISTRY/$IMAGE_NAME:$IMAGE_TAG .
+          docker push $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Get current active version
+        id: get_active
+        run: |
+          # Query the current service selector label to get active version (green or blue)
+          ACTIVE_VERSION=$(kubectl get svc backend-api-service -o jsonpath='{.spec.selector.version}')
+          echo "active_version=$ACTIVE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Calculate next version
+        id: calc_next
+        run: |
+          if [ "${{ steps.get_active.outputs.active_version }}" = "green" ]; then
+            echo "next_version=blue" >> $GITHUB_OUTPUT
+          else
+            echo "next_version=green" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy Helm with next version and new image tag
+        run: |
+          helm upgrade backend-api ./k8s-backend-api/helm \
+            --install \
+            --wait \
+            --timeout 300s \
+            --set activeVersion=${{ steps.calc_next.outputs.next_version }} \
+            --set image.repository=$REGISTRY/$IMAGE_NAME \
+            --set image.tag=${{ env.IMAGE_TAG }}
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/backend-api-${{ steps.calc_next.outputs.next_version }} --timeout=300s
+
+      - name: Scale down old deployment
+        run: |
+          kubectl scale deployment backend-api-${{ steps.get_active.outputs.active_version }} --replicas=0
+
+      - name: Notify Slack on success
+        if: success() && env.SLACK_WEBHOOK_URL != ''
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify Slack on failure
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
