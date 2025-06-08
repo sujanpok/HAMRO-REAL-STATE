@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:  # 👈 enables "Run workflow" button
 
 env:
   REGISTRY: docker.io
